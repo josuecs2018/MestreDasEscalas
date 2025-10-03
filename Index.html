@@ -73,6 +73,28 @@
 </head>
 <body>
 
+    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="welcomeModalLabel">Seja Bem Vindo ao jogo Mestre das Escalas 🎶</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="fs-4 fw-bold text-dark">
+                        Prepare seus ouvidos e sua mente! Chegou a hora de desvendar os segredos da harmonia e dominar a construção das escalas musicais!
+                    </p>
+                    <p class="text-muted">
+                        Complete 10 desafios de escalas maiores para provar sua maestria. Boa sorte!
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-success btn-lg" data-bs-dismiss="modal">
+                        Começar a Jogar!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="container mt-5">
         <h1 class="text-center mb-4">Mestre das Escalas</h1>
 
@@ -96,7 +118,7 @@
             <h2 class="text-center text-success mb-4">Relatório Final do Desafio</h2>
             <div id="relatorio-detalhes" class="fs-4 text-center"></div>
             <div class="text-center mt-4">
-                 <button class="btn btn-primary btn-lg" onclick="location.reload()">Recomeçar o Jogo</button>
+                <button class="btn btn-primary btn-lg" onclick="location.reload()">Recomeçar o Jogo</button>
             </div>
         </div>
 
@@ -426,10 +448,19 @@
             }
         }
         
+        // --- FUNÇÃO PARA EXIBIR A MODAL DE BEM-VINDO ---
+        function showWelcomeModal() {
+             const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+             welcomeModal.show();
+        }
+
         // --- Execução inicial ---
         document.addEventListener('DOMContentLoaded', () => {
-             // Oculta a área de relatório ao carregar
+            // Oculta a área de relatório ao carregar
             document.getElementById('area-relatorio').classList.add('d-none');
+            
+            // Exibe a modal de boas-vindas
+            showWelcomeModal();
         });
 
     </script>
