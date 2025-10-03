@@ -169,7 +169,7 @@
 
         // --- VARIÁVEIS DE ESTADO E CONTAGEM ---
         const MAX_DESAFIOS = 10;
-        const MAX_ERROS_PARA_PASSAR = 7; // Erros >= 7 = Passou / Erros < 7 = Repete
+        const MAX_ERROS_PARA_PASSAR = 7; 
         
         let modoAtual = 'major';
         let escalaCorreta = [];
@@ -177,7 +177,7 @@
         let notasComErroNesteDesafio = new Set(); 
 
         let desafiosCompletados = 0;
-        let totalErros = 0; // Contagem de erros únicos (um erro por nota)
+        let totalErros = 0; 
 
         let jogoFinalizado = false;
 
@@ -198,19 +198,23 @@
                     }
                 }).toDestination();
                 
-                Tone.start();
+                // GARANTE QUE O CONTEXTO DE ÁUDIO É INICIADO (CRUCIAL PARA IOS/MOBILE)
+                Tone.start(); 
             }
         }
 
         function tocarNota(nota) {
-            inicializarAudio(); 
+            // Não precisa chamar inicializarAudio() aqui, pois é chamado ao fechar a modal
             const notaComOitava = nota + "4"; 
-            synth.triggerAttackRelease(notaComOitava, "0.4s");
+            if (synth) {
+                 synth.triggerAttackRelease(notaComOitava, "0.4s");
+            }
         }
         
         // REPRODUZ O SOM DA ESCALA FORMADA
         function tocarEscalaCompleta() {
-            inicializarAudio();
+            if (!synth) return; // Se o áudio não foi inicializado, não toca
+            
             const notasComOitava = escalaCorreta.map(nota => nota + "4");
             
             notasComOitava.forEach((nota, index) => {
@@ -226,7 +230,7 @@
             }, notasComOitava.length * 500); 
         }
         
-        // --- FUNÇÕES DE LÓGICA MUSICAL E CONTROLE DO JOGO ---
+        // --- FUNÇÕES DE LÓGICA MUSICAL E CONTROLE DO JOGO (Sem alterações de lógica aqui) ---
 
         function gerarEscalaCorreta(tonicaIndex, modo) {
             const intervalos = padraoEscala[modo].intervalos;
@@ -294,9 +298,7 @@
                 
                 tocarEscalaCompleta(); 
 
-                // Verifica se é hora de terminar o ciclo
                 if (desafiosCompletados >= MAX_DESAFIOS) {
-                    // Espera o som da escala terminar antes de exibir o relatório
                     setTimeout(exibirRelatorioFinal, 2000); 
                 } else {
                     document.getElementById('botao-proximo').classList.remove('d-none');
@@ -305,7 +307,6 @@
         }
 
         function iniciarJogo(modo) {
-            // Força 'major' conforme a regra
             if (modo !== 'major') return; 
             
             modoAtual = 'major';
@@ -317,7 +318,6 @@
         }
 
         function gerarDesafio() {
-            // Reseta a contagem de erros para esta escala
             notasComErroNesteDesafio.clear();
             
             const tonicaIndex = Math.floor(Math.random() * 12);
@@ -334,7 +334,6 @@
             
             document.querySelectorAll('.nota-teclado').forEach(btn => btn.removeAttribute('disabled'));
             
-            // Atualiza o contador de desafios
             document.getElementById('contador-desafios').textContent = desafiosCompletados + 1;
 
             renderizarEscalaContainer();
@@ -351,7 +350,6 @@
             const indiceNota = notaAtualIndex; 
 
             if (notaClicada === notaEsperada) {
-                // ACERTOU!
                 notaBox.textContent = notaClicada;
                 notaBox.classList.remove('nota-errada');
                 notaBox.classList.add('nota-preenchida');
@@ -365,8 +363,6 @@
                 }
 
             } else {
-                // ERROU!
-                // Contabiliza o erro APENAS se for o primeiro erro para este índice/posição na escala
                 if (!notasComErroNesteDesafio.has(indiceNota)) {
                     totalErros++;
                     notasComErroNesteDesafio.add(indiceNota);
@@ -377,7 +373,6 @@
                 
                 setTimeout(() => {
                     notaBox.classList.remove('nota-errada');
-                    // Mantém o '?' e a mensagem de feedback
                     atualizarFeedback(`Escolha a ${notaAtualIndex + 1}ª nota da escala. Erros acumulados: ${totalErros}`);
                 }, 500);
             }
@@ -390,7 +385,6 @@
             
             const relatorioDiv = document.getElementById('relatorio-detalhes');
             
-            // Total de notas que deveriam ser acertadas (6 por escala * 10 desafios)
             const totalNotas = MAX_DESAFIOS * 6; 
             const acertosTotal = totalNotas - totalErros;
             const taxaAcerto = ((acertosTotal / totalNotas) * 100).toFixed(1);
@@ -398,7 +392,6 @@
             let mensagem = ``;
             
             if (totalErros < MAX_ERROS_PARA_PASSAR) {
-                // REPETIR O DESAFIO (falhou em ter muitos erros)
                 mensagem = `
                     <p class="text-danger fw-bold">⚠️ Necessária Repetição ⚠️</p>
                     <p>Você completou **10 desafios** com um total de **${totalErros} erros**.</p>
@@ -407,11 +400,9 @@
                     <p class="mt-4">Seu total de erros é **menor que 7**. O desafio será **reiniciado** para garantir a maestria na montagem das escalas!</p>
                 `;
                 
-                 // Reinicia o jogo após exibir a mensagem
                  setTimeout(reiniciarCicloDesafios, 6000); 
 
             } else {
-                // FINALIZA O JOGO (SUCESSO)
                 mensagem = `
                     <p class="text-success fw-bold">🎉 Parabéns, Mestre das Escalas! 🎉</p>
                     <p>Você completou **10 desafios** com um total de **${totalErros} erros**.</p>
@@ -419,19 +410,16 @@
                     <p>Taxa de Acerto: **${taxaAcerto}%**</p>
                     <p class="mt-4">Você demonstrou maestria suficiente nesta etapa! Clique em "Recomeçar o Jogo" para um novo desafio.</p>
                 `;
-                 // Remove o auto-reset, pois ele "passou"
             }
             
             relatorioDiv.innerHTML = mensagem;
         }
 
         function reiniciarCicloDesafios() {
-            // Zera as variáveis de contagem
             desafiosCompletados = 0;
             totalErros = 0;
             jogoFinalizado = false;
             
-            // Retorna à área de jogo
             document.getElementById('area-relatorio').classList.add('d-none');
             document.getElementById('area-jogo').classList.remove('d-none');
             
@@ -443,7 +431,6 @@
             if (desafiosCompletados < MAX_DESAFIOS) {
                 gerarDesafio();
             } else {
-                // Caso o botão seja clicado antes do tempo
                 exibirRelatorioFinal();
             }
         }
@@ -461,6 +448,16 @@
             
             // Exibe a modal de boas-vindas
             showWelcomeModal();
+
+            // ==============================================================
+            // NOVO: Adiciona um listener para inicializar o áudio ao fechar a modal
+            // Isso garante que o áudio seja liberado após a primeira interação do usuário,
+            // que é um requisito de segurança para a maioria dos navegadores móveis (iOS/Safari).
+            // ==============================================================
+            const welcomeModalElement = document.getElementById('welcomeModal');
+            welcomeModalElement.addEventListener('hidden.bs.modal', function () {
+                inicializarAudio();
+            });
         });
 
     </script>
