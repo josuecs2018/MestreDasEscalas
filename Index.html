@@ -73,52 +73,26 @@
 </head>
 <body>
 
-    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="welcomeModalLabel">Seja Bem Vindo ao jogo Mestre das Escalas 🎶</h5>
-                </div>
-                <div class="modal-body text-center">
-                    <p class="fs-4 fw-bold text-dark">
-                        Prepare seus ouvidos e sua mente! Chegou a hora de desvendar os segredos da harmonia e dominar a construção das escalas musicais!
-                    </p>
-                    <p class="text-muted">
-                        Complete 10 desafios de escalas maiores para provar sua maestria. Boa sorte!
-                    </p>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-success btn-lg" data-bs-dismiss="modal">
-                        Começar a Jogar!
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="container mt-5">
         <h1 class="text-center mb-4">Mestre das Escalas</h1>
 
         <div id="modo-selecao" class="text-center">
-            <h3 class="mb-3">Escolha o Modo:</h3>
-            <div class="d-flex justify-content-center flex-wrap">
-                <button class="btn btn-primary btn-lg m-2" onclick="iniciarJogo('major')">
-                    Escalas Maiores
-                </button>
-                
-                <div class="dropdown m-2">
-                    <button class="btn btn-warning btn-lg dropdown-toggle" type="button" disabled aria-expanded="false">
-                        Escalas Menores (Desabilitado)
-                    </button>
-                </div>
-            </div>
-             <p class="mt-3 text-danger fw-bold">Modo de Escalas Menores desabilitado conforme as regras do desafio.</p>
+            <h3 class="mb-4">Desafio: 10 Escalas Maiores</h3>
+            <p>Seu objetivo é completar **10 desafios** de escalas Maiores.</p>
+            <p>Se você acumular **menos de 7 erros** (erro é contado apenas na primeira tentativa incorreta por nota) após os 10 desafios, você deverá repetir o ciclo!</p>
+            
+            <hr class="my-4">
+            
+            <button id="ativar-audio-btn" class="btn btn-primary btn-lg m-2" onclick="ativarAudioEIniciar()">
+                INICIAR DESAFIO E ATIVAR ÁUDIO
+            </button>
         </div>
         
         <div id="area-relatorio" class="mt-5 p-4 border rounded shadow-sm d-none">
             <h2 class="text-center text-success mb-4">Relatório Final do Desafio</h2>
             <div id="relatorio-detalhes" class="fs-4 text-center"></div>
             <div class="text-center mt-4">
-                <button class="btn btn-primary btn-lg" onclick="location.reload()">Recomeçar o Jogo</button>
+                 <button class="btn btn-primary btn-lg" onclick="location.reload()">Recomeçar o Jogo</button>
             </div>
         </div>
 
@@ -169,7 +143,7 @@
 
         // --- VARIÁVEIS DE ESTADO E CONTAGEM ---
         const MAX_DESAFIOS = 10;
-        const MAX_ERROS_PARA_PASSAR = 7; 
+        const MAX_ERROS_PARA_REPETIR = 7; // Erros < 7 = Repete | Erros >= 7 = Passou/Finaliza
         
         let modoAtual = 'major';
         let escalaCorreta = [];
@@ -177,19 +151,30 @@
         let notasComErroNesteDesafio = new Set(); 
 
         let desafiosCompletados = 0;
-        let totalErros = 0; 
+        let totalErros = 0;
 
         let jogoFinalizado = false;
 
         // --- VARIÁVEIS DE ÁUDIO (TONE.JS) ---
-        let synth;
+        let synth = null;
 
-        function inicializarAudio() {
+        // NOVO: Função que ativa o áudio E INICIA O JOGO imediatamente
+        async function ativarAudioEIniciar() {
+            // 1. Ativa o contexto de áudio
+            if (Tone.context.state !== 'running') {
+                try {
+                    await Tone.start();
+                } catch (e) {
+                    console.error("Falha ao iniciar o contexto de áudio:", e);
+                    alert("O áudio não pôde ser ativado. Verifique as permissões do navegador.");
+                    return;
+                }
+            }
+            
+            // 2. Cria o sintetizador se ainda não foi criado
             if (!synth) {
                 synth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: {
-                        type: "sawtooth" 
-                    },
+                    oscillator: { type: "sawtooth" },
                     envelope: {
                         attack: 0.005,
                         decay: 0.1,
@@ -197,37 +182,39 @@
                         release: 1 
                     }
                 }).toDestination();
-                
-                // INICIA O CONTEXTO DE ÁUDIO NO PRIMEIRO TOQUE
-                Tone.start(); 
             }
+
+            // 3. Inicia o jogo de Escalas Maiores
+            iniciarJogo('major');
         }
 
         function tocarNota(nota) {
-            // A inicialização é garantida pelo botão iniciarJogo
-            const notaComOitava = nota + "4"; 
-            if (synth) {
-                 synth.triggerAttackRelease(notaComOitava, "0.4s");
+            if (!synth || Tone.context.state !== 'running') {
+                console.warn("Áudio não está pronto.");
+                return;
             }
+            const notaComOitava = nota + "4"; 
+            synth.triggerAttackRelease(notaComOitava, "0.4s");
         }
         
-        // REPRODUZ O SOM DA ESCALA FORMADA
         function tocarEscalaCompleta() {
-            if (!synth) return; 
+            if (!synth || Tone.context.state !== 'running') return;
             
             const notasComOitava = escalaCorreta.map(nota => nota + "4");
             
-            notasComOitava.forEach((nota, index) => {
-                Tone.Transport.scheduleOnce(time => {
-                    synth.triggerAttackRelease(nota, "0.4", time);
-                }, index * 0.5);
-            });
-
-            Tone.Transport.start(); 
+            // Usa o Tone.Sequence para reprodução sequencial (mais limpo que o Transport.scheduleOnce)
+            const notesSequence = new Tone.Sequence((time, note) => {
+                synth.triggerAttackRelease(note, "0.4", time);
+            }, notasComOitava, "0.5"); 
             
-            setTimeout(() => {
+            // Garante que o Transport pare ao final
+            Tone.Transport.scheduleOnce(() => {
+                notesSequence.dispose();
                 Tone.Transport.stop();
-            }, notasComOitava.length * 500); 
+            }, `+${notasComOitava.length * 0.5}`); 
+
+            notesSequence.start(0);
+            Tone.Transport.start(); 
         }
         
         // --- FUNÇÕES DE LÓGICA MUSICAL E CONTROLE DO JOGO ---
@@ -287,8 +274,6 @@
             if (notaAtualIndex === 7) {
                 desafiosCompletados++;
                 
-                const modoNome = padraoEscala[modoAtual].nome;
-                
                 document.getElementById('contador-desafios').textContent = desafiosCompletados;
                 
                 atualizarFeedback(`🏆 Desafio ${desafiosCompletados} concluído! Erros acumulados: ${totalErros}`, 'success');
@@ -307,13 +292,9 @@
         }
 
         function iniciarJogo(modo) {
-            // Chama inicializarAudio() aqui, garantindo que o áudio
-            // seja liberado pelo clique do usuário no botão 'Escalas Maiores'.
-            inicializarAudio();
-
-            if (modo !== 'major') return; 
-            
+            // Força 'major' conforme a regra
             modoAtual = 'major';
+            
             document.getElementById('modo-selecao').classList.add('d-none');
             document.getElementById('area-jogo').classList.remove('d-none');
             
@@ -395,24 +376,26 @@
 
             let mensagem = ``;
             
-            if (totalErros < MAX_ERROS_PARA_PASSAR) {
+            if (totalErros < MAX_ERROS_PARA_REPETIR) {
+                // REPETIR O DESAFIO
                 mensagem = `
-                    <p class="text-danger fw-bold">⚠️ Necessária Repetição ⚠️</p>
-                    <p>Você completou **10 desafios** com um total de **${totalErros} erros**.</p>
-                    <p>O limite de erros para passar para a próxima etapa é de 7 ou mais.</p>
+                    <p class="text-danger fw-bold">⚠️ Repetição Necessária: Faltou Errar! ⚠️</p>
+                    <p>Você completou **${desafiosCompletados} desafios** com um total de **${totalErros} erros**.</p>
+                    <p>O limite de erros para **PASSAR** (seguir para a próxima fase) é de **${MAX_ERROS_PARA_REPETIR} ou mais**.</p>
                     <p>Taxa de Acerto: **${taxaAcerto}%**</p>
-                    <p class="mt-4">Seu total de erros é **menor que 7**. O desafio será **reiniciado** para garantir a maestria na montagem das escalas!</p>
+                    <p class="mt-4">Seu total de erros é **menor que ${MAX_ERROS_PARA_REPETIR}**. O desafio será **reiniciado** para garantir a Maestria! O objetivo é ter **pelo menos 7 erros** para mostrar que você enfrentou a dificuldade!</p>
                 `;
                 
                  setTimeout(reiniciarCicloDesafios, 6000); 
 
             } else {
+                // FINALIZA O JOGO (SUCESSO)
                 mensagem = `
                     <p class="text-success fw-bold">🎉 Parabéns, Mestre das Escalas! 🎉</p>
-                    <p>Você completou **10 desafios** com um total de **${totalErros} erros**.</p>
-                    <p>Seu total de erros (${totalErros}) é **maior ou igual ao limite de 7** para esta fase.</p>
+                    <p>Você completou **${desafiosCompletados} desafios** com um total de **${totalErros} erros**.</p>
+                    <p>Seu total de erros (${totalErros}) é **maior ou igual ao limite de ${MAX_ERROS_PARA_REPETIR}**.</p>
                     <p>Taxa de Acerto: **${taxaAcerto}%**</p>
-                    <p class="mt-4">Você demonstrou maestria suficiente nesta etapa! Clique em "Recomeçar o Jogo" para um novo desafio.</p>
+                    <p class="mt-4">Você superou o teste de dificuldade e pode finalizar esta etapa! Clique em "Recomeçar o Jogo" para um novo desafio.</p>
                 `;
             }
             
@@ -439,21 +422,9 @@
             }
         }
         
-        // --- FUNÇÃO PARA EXIBIR A MODAL DE BEM-VINDO ---
-        function showWelcomeModal() {
-             const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
-             welcomeModal.show();
-        }
-
         // --- Execução inicial ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Oculta a área de relatório ao carregar
             document.getElementById('area-relatorio').classList.add('d-none');
-            
-            // Exibe a modal de boas-vindas
-            showWelcomeModal();
-
-            // REMOVIDO: O listener da modal foi removido, a inicialização agora é no botão iniciarJogo.
         });
 
     </script>
