@@ -198,13 +198,13 @@
                     }
                 }).toDestination();
                 
-                // GARANTE QUE O CONTEXTO DE ÁUDIO É INICIADO (CRUCIAL PARA IOS/MOBILE)
+                // INICIA O CONTEXTO DE ÁUDIO NO PRIMEIRO TOQUE
                 Tone.start(); 
             }
         }
 
         function tocarNota(nota) {
-            // Não precisa chamar inicializarAudio() aqui, pois é chamado ao fechar a modal
+            // A inicialização é garantida pelo botão iniciarJogo
             const notaComOitava = nota + "4"; 
             if (synth) {
                  synth.triggerAttackRelease(notaComOitava, "0.4s");
@@ -213,7 +213,7 @@
         
         // REPRODUZ O SOM DA ESCALA FORMADA
         function tocarEscalaCompleta() {
-            if (!synth) return; // Se o áudio não foi inicializado, não toca
+            if (!synth) return; 
             
             const notasComOitava = escalaCorreta.map(nota => nota + "4");
             
@@ -230,7 +230,7 @@
             }, notasComOitava.length * 500); 
         }
         
-        // --- FUNÇÕES DE LÓGICA MUSICAL E CONTROLE DO JOGO (Sem alterações de lógica aqui) ---
+        // --- FUNÇÕES DE LÓGICA MUSICAL E CONTROLE DO JOGO ---
 
         function gerarEscalaCorreta(tonicaIndex, modo) {
             const intervalos = padraoEscala[modo].intervalos;
@@ -307,6 +307,10 @@
         }
 
         function iniciarJogo(modo) {
+            // Chama inicializarAudio() aqui, garantindo que o áudio
+            // seja liberado pelo clique do usuário no botão 'Escalas Maiores'.
+            inicializarAudio();
+
             if (modo !== 'major') return; 
             
             modoAtual = 'major';
@@ -449,15 +453,7 @@
             // Exibe a modal de boas-vindas
             showWelcomeModal();
 
-            // ==============================================================
-            // NOVO: Adiciona um listener para inicializar o áudio ao fechar a modal
-            // Isso garante que o áudio seja liberado após a primeira interação do usuário,
-            // que é um requisito de segurança para a maioria dos navegadores móveis (iOS/Safari).
-            // ==============================================================
-            const welcomeModalElement = document.getElementById('welcomeModal');
-            welcomeModalElement.addEventListener('hidden.bs.modal', function () {
-                inicializarAudio();
-            });
+            // REMOVIDO: O listener da modal foi removido, a inicialização agora é no botão iniciarJogo.
         });
 
     </script>
