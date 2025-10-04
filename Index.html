@@ -1,435 +1,137 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mestre das Escalas Musicais</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <style>
-        /* AJUSTES RESPONSIVOS */
-        body {
-            background-color: #f8f9fa;
-        }
-        .nota-teclado {
-            /* Tamanho ligeiramente menor para caber mais em telas pequenas */
-            width: 50px; 
-            height: 50px;
-            margin: 3px; /* Margem reduzida */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.9em; /* Fonte um pouco menor */
-            cursor: pointer;
-            border-radius: 5px; /* Bordas arredondadas */
-            /* Transição para feedback visual mais suave */
-            transition: background-color 0.2s, color 0.2s, transform 0.1s; 
-        }
-
-        /* MEDIA QUERY para telas maiores */
-        @media (min-width: 768px) {
-            .nota-teclado {
-                width: 60px;
-                height: 60px;
-                margin: 4px;
-                font-size: 1.1em;
-            }
-        }
-
-        .nota-teclado.sustenido {
-            background-color: black !important;
-            color: white !important;
-        }
-        .nota-teclado:active {
-            transform: scale(0.95); /* Efeito de clique */
-        }
-        
-        .nota-escala {
-            /* Tamanho ajustado para ser mais amigável ao celular */
-            width: 45px;
-            height: 45px;
-            margin: 3px; 
-            border: 2px solid #343a40;
-            background-color: #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1em; /* Fonte menor */
-            font-weight: bold;
-            border-radius: 8px;
-            flex-shrink: 0; /* Impede que diminua demais */
-        }
-
-        @media (min-width: 768px) {
-            .nota-escala {
-                width: 70px;
-                height: 70px;
-                margin: 5px;
-                font-size: 1.2em;
-            }
-        }
-
-        .nota-preenchida {
-            background-color: #28a745 !important;
-            color: white;
-            border-color: #1e7e34;
-        }
-        .nota-errada {
-            animation: shake 0.5s;
-            background-color: #dc3545 !important;
-            color: white;
-        }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-        .intervalos-container {
-            /* Adicionado flex-wrap para quebrar a linha em telas pequenas */
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap; 
-            margin-top: 8px;
-            gap: 5px; /* Reduzido o gap */
-        }
-        .intervalo-box {
-            font-size: 0.8rem; /* Fonte menor para caber */
-            font-weight: bold;
-            color: #444;
-            padding: 2px 5px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mestre das Escalas Musicais</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+/* --- estilo simplificado para manter foco --- */
+body { background-color:#f8f9fa; }
+.titulo-3d { font-weight:900; font-size:2rem; color:#fff; background:linear-gradient(180deg,#4b6cb7 0%,#182848 100%); text-shadow:0 1px 0 rgba(255,255,255,0.05),0 2px 0 rgba(0,0,0,0.25),0 4px 8px rgba(0,0,0,0.45); padding:0.25rem 0.8rem; border-radius:10px; display:inline-block; transform: perspective(600px) rotateX(6deg);}
+.nota-teclado { width:60px;height:60px;margin:4px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:1.1em;cursor:pointer;flex:1 1 60px;}
+.nota-teclado.sustenido { background-color:black !important;color:white !important; }
+.nota-escala { width:70px;height:70px;margin:5px;border:2px solid #343a40;background-color:#e9ecef;display:flex;align-items:center;justify-content:center;font-size:1.2em;font-weight:bold;border-radius:8px;}
+.nota-preenchida { background-color:#28a745 !important;color:white;border-color:#1e7e34; }
+.nota-errada { animation: shake 0.5s; background-color:#dc3545 !important;color:white;}
+@keyframes shake {0%,100%{transform:translate(0);}20%{transform:translate(-2px,0);}40%{transform:translate(2px,0);}60%{transform:translate(-2px,0);}80%{transform:translate(2px,0);}}
+.intervalos-container{display:flex;justify-content:center;margin-top:8px;gap:10px;flex-wrap:wrap;}
+.intervalo-box{font-size:0.9rem;font-weight:bold;color:#444;}
+</style>
 </head>
 <body>
 
-    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="welcomeModalLabel">Seja Bem Vindo ao jogo Mestre das Escalas 🎶</h5>
-                </div>
-                <div class="modal-body text-center">
-                    <p class="fs-4 fw-bold text-dark">
-                        Prepare seus ouvidos e sua mente! Chegou a hora de desvendar os segredos da harmonia e dominar a construção das escalas musicais!
-                    </p>
-                    <p class="text-muted">
-                        Complete 10 desafios de escalas maiores para provar sua maestria. Boa sorte!
-                    </p>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-success btn-lg" data-bs-dismiss="modal">
-                        Começar a Jogar!
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="container mt-4 mb-5">
+<h1 class="text-center mb-4"><span class="titulo-3d">Mestre das Escalas</span></h1>
 
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Mestre das Escalas</h1>
+<div id="modo-selecao" class="text-center mb-4">
+<h3 class="mb-3">Escolha o Modo:</h3>
+<div class="d-flex justify-content-center flex-wrap">
+<button class="btn btn-primary btn-lg m-2" onclick="iniciarJogo('major')">Escalas Maiores</button>
+<button class="btn btn-warning btn-lg m-2" onclick="iniciarJogo('minorNatural')">Menor Natural</button>
+<button class="btn btn-warning btn-lg m-2" onclick="iniciarJogo('minorHarmonic')">Menor Harmônica</button>
+<button class="btn btn-warning btn-lg m-2" onclick="iniciarJogo('minorMelodic')">Menor Melódica</button>
+</div>
+</div>
 
-        <div id="modo-selecao" class="text-center">
-            <h3 class="mb-3">Escolha o Modo:</h3>
-            <div class="d-flex justify-content-center flex-wrap">
-                <button class="btn btn-primary btn-lg m-2" onclick="iniciarJogo('major')">
-                    Escalas Maiores
-                </button>
-                <div class="dropdown m-2">
-                    <button class="btn btn-warning btn-lg dropdown-toggle" type="button" disabled>
-                        Escalas Menores (Desabilitado)
-                    </button>
-                </div>
-            </div>
-            <p class="mt-3 text-danger fw-bold">Modo de Escalas Menores desabilitado conforme as regras do desafio.</p>
-        </div>
-        
-        <div id="area-relatorio" class="mt-5 p-4 border rounded shadow-sm d-none">
-            <h2 class="text-center text-success mb-4">Relatório Final do Desafio</h2>
-            <div id="relatorio-detalhes" class="fs-4 text-center"></div>
-            <div class="text-center mt-4">
-                <button class="btn btn-primary btn-lg" onclick="location.reload()">Recomeçar o Jogo</button>
-            </div>
-        </div>
+<div id="area-jogo" class="d-none">
 
-        <div id="area-jogo" class="mt-5 p-4 border rounded shadow-sm d-none">
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-4">
-                <button class="btn btn-secondary btn-sm mb-2 mb-sm-0" onclick="location.reload()">
-                    &larr; Voltar ao Início / Recomeçar
-                </button>
-                
-                <h3 id="desafio-titulo" class="m-0 text-center flex-grow-1 mx-sm-3"></h3> 
-                
-                <span class="badge bg-dark fs-6 mt-2 mt-sm-0">Desafio <span id="contador-desafios">1</span> de 10</span>
-            </div>
-            
-            <div id="escala-container" class="d-flex justify-content-center flex-column align-items-center mb-4"></div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="text-center mb-3">
+    <button class="btn btn-secondary btn-lg m-2" id="btn-voltar-inicio" onclick="voltarTelaInicial()">← Voltar à Tela Inicial</button>
+</div>
+<h3 id="desafio-titulo" class="text-center flex-grow-1 my-2"></h3>
+<span class="badge bg-dark fs-6">Desafio <span id="contador-desafios">1</span> de 10</span>
+</div>
+<div id="escala-container" class="d-flex justify-content-center flex-column align-items-center mb-3"></div>
+<div class="alert alert-info text-center" id="feedback-mensagem" role="alert">Clique nas notas abaixo para construir a escala.</div>
+<div id="teclado-container" class="d-flex justify-content-center flex-wrap mb-3"></div>
+<div class="text-center mb-3">
+<button class="btn btn-primary btn-lg d-none m-2" id="botao-tocar-escala" onclick="tocarEscalaCompleta()">🎶 Tocar Escala</button>
+<button class="btn btn-success btn-lg d-none m-2" id="botao-proximo" onclick="proximoDesafio()">Próxima Escala</button>
+</div>
+<!-- Gráfico por nota -->
+<canvas id="grafico-notas" width="400" height="150" class="mb-4"></canvas>
+<!-- Gráfico acumulado -->
+<canvas id="grafico-acumulado" width="400" height="150" class="mb-4"></canvas>
+</div>
 
-            <div class="alert alert-info text-center" id="feedback-mensagem" role="alert">
-                Clique nas notas abaixo para construir a escala.
-            </div>
+<div id="area-relatorio" class="mt-4 p-4 border rounded shadow-sm d-none">
+<h2 class="text-center text-success mb-4">Relatório Final do Desafio</h2>
+<div id="relatorio-detalhes" class="fs-5 text-center"></div>
+<div class="text-center mt-4"><button class="btn btn-primary btn-lg" onclick="location.reload()">Recomeçar o Jogo</button></div>
+</div>
+</div>
 
-            <div id="teclado-container" class="d-flex justify-content-center flex-wrap"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/tone@14.7.58/build/Tone.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-            <div class="text-center mt-4">
-                <button class="btn btn-primary btn-lg d-none m-2" id="botao-tocar-escala" onclick="tocarEscalaCompleta()">Tocar Escala Formada 🎶</button>
-                <button class="btn btn-success btn-lg d-none m-2" id="botao-proximo" onclick="proximoDesafio()">Próxima Escala</button>
-            </div>
-        </div>
-    </div>
+<script>
+// --- Dados ---
+const notasCromaticas=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const padraoEscala={
+    major:{nome:"Maior",intervalos:[0,2,4,5,7,9,11,12]},
+    minorNatural:{nome:"Menor Natural",intervalos:[0,2,3,5,7,8,10,12]},
+    minorHarmonic:{nome:"Menor Harmônica",intervalos:[0,2,3,5,7,8,11,12]},
+    minorMelodic:{nome:"Menor Melódica",intervalos:[0,2,3,5,7,9,11,12]}
+};
+const intervalosDescricao=["Tom","Tom","Semitom","Tom","Tom","Tom","Semitom"];
+const MAX_DESAFIOS=10;
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/tone@14.7.58/build/Tone.js"></script>
+let modoAtual='major', escalaCorreta=[], notaAtualIndex=0, desafiosCompletados=0, totalErros=0, jogoFinalizado=false, synth;
+let errosPorNota = Array(8).fill(0);
+let acertosAcumulados = Array(8).fill(0);
 
-    <script>
-        // --- DADOS MUSICAIS ---
-        const notasCromaticas = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        const padraoEscala = {
-            major: { 
-                nome: "Maior", 
-                intervalos: [0, 2, 4, 5, 7, 9, 11, 12] 
-            }
-        };
-        const intervalosDescricao = ["Tom", "Tom", "Semitom", "Tom", "Tom", "Tom", "Semitom"];
+// ---“Voltar à Tela Inicial” ---
+function voltarTelaInicial() {
+    // Oculta áreas do jogo e relatório
+    document.getElementById('area-jogo').classList.add('d-none');
+    document.getElementById('area-relatorio').classList.add('d-none');
+    // Reseta variáveis do jogo
+    notaAtualIndex = 0;
+    desafiosCompletados = 0;
+    totalErros = 0;
+    jogoFinalizado = false;
+    errosPorNota.fill(0);
+    acertosAcumulados.fill(0);
+    // Atualiza gráficos zerados
+    atualizarGraficoNotas();
+    atualizarGraficoAcumulado();
+    // Mostra modo de seleção
+    document.getElementById('modo-selecao').classList.remove('d-none');
+    atualizarFeedback(`Selecione um modo de escala para começar.`);
+}
 
-        // --- VARIÁVEIS ---
-        const MAX_DESAFIOS = 10;
-        const MAX_ERROS_PARA_PASSAR = 7; 
-        
-        let modoAtual = 'major';
-        let escalaCorreta = [];
-        let notaAtualIndex = 0;
-        let notasComErroNesteDesafio = new Set();
-        let desafiosCompletados = 0;
-        let totalErros = 0;
-        let jogoFinalizado = false;
-        let synth;
+// --- Audio ---
+function inicializarAudio(){if(!synth){synth=new Tone.PolySynth(Tone.Synth,{oscillator:{type:"sawtooth"},envelope:{attack:0.005,decay:0.1,sustain:0.3,release:1}}).toDestination();Tone.start();}}
+function tocarNota(nota){if(synth)synth.triggerAttackRelease(nota+"4","0.4s");}
+function tocarEscalaCompleta(){if(!synth||!Array.isArray(escalaCorreta))return;Tone.Transport.cancel();escalaCorreta.forEach((nota,i)=>Tone.Transport.scheduleOnce(time=>synth.triggerAttackRelease(nota+"4","0.4",time),i*0.5));Tone.Transport.start();setTimeout(()=>Tone.Transport.stop(),escalaCorreta.length*500);}
 
-        function inicializarAudio() {
-            if (!synth) {
-                synth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: { type: "sawtooth" },
-                    envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 }
-                }).toDestination();
-                Tone.start();
-            }
-        }
+// --- Interface ---
+function renderizarTeclado(){const div=document.getElementById('teclado-container');div.innerHTML='';notasCromaticas.forEach(nota=>{const btn=document.createElement('button');btn.className='btn nota-teclado';btn.classList.add(nota.includes("#")?"sustenido":"btn-secondary");btn.textContent=nota;btn.addEventListener('click',()=>checarNota(nota));div.appendChild(btn);});}
+function renderizarEscalaContainer(){const div=document.getElementById('escala-container');div.innerHTML='';const linha=document.createElement('div');linha.className="d-flex justify-content-center flex-wrap";for(let i=0;i<8;i++){const box=document.createElement('div');box.className='nota-escala';box.id=`nota-box-${i}`;box.textContent=i===0?escalaCorreta[0]:'?';if(i===0)box.classList.add('nota-preenchida');linha.appendChild(box);}div.appendChild(linha);const linhaIntervalos=document.createElement('div');linhaIntervalos.className='intervalos-container';intervalosDescricao.forEach(intv=>{const box=document.createElement('div');box.className='intervalo-box';box.textContent=intv;linhaIntervalos.appendChild(box);});div.appendChild(linhaIntervalos);}
+function atualizarFeedback(msg,tipo='info'){const f=document.getElementById('feedback-mensagem');f.className=`alert alert-${tipo} text-center`;f.innerHTML=msg;}
 
-        function tocarNota(nota) {
-            // ALTERAÇÃO AQUI: Mudança de "4" para "3" para notas mais graves.
-            const notaComOitava = nota + "3"; 
-            if (synth) {
-                synth.triggerAttackRelease(notaComOitava, "0.4s");
-            }
-        }
+// --- Lógica do Jogo ---
+function gerarEscalaCorreta(tonicaIndex,modo){const intv=padraoEscala[modo].intervalos;return intv.map(i=>notasCromaticas[(tonicaIndex+i)%12]);}
+function iniciarJogo(modo){modoAtual=modo;inicializarAudio();document.getElementById('modo-selecao').classList.add('d-none');document.getElementById('area-jogo').classList.remove('d-none');renderizarTeclado();gerarDesafio();}
+function gerarDesafio(){escalaCorreta=gerarEscalaCorreta(Math.floor(Math.random()*12),modoAtual);notaAtualIndex=1;document.getElementById('desafio-titulo').textContent=`Monte a Escala de ${escalaCorreta[0]} ${padraoEscala[modoAtual].nome}`;document.getElementById('botao-proximo').classList.add('d-none');document.getElementById('botao-tocar-escala').classList.add('d-none');document.querySelectorAll('.nota-teclado').forEach(btn=>btn.removeAttribute('disabled'));renderizarEscalaContainer();atualizarFeedback(`Escolha a ${notaAtualIndex+1}ª nota. Erros acumulados: ${totalErros}`);errosPorNota.fill(0);}
+function checarNota(nota){if(notaAtualIndex>=8||jogoFinalizado)return;tocarNota(nota);const notaEsperada=escalaCorreta[notaAtualIndex];const box=document.getElementById(`nota-box-${notaAtualIndex}`);if(nota===notaEsperada){box.textContent=nota;box.classList.add('nota-preenchida');acertosAcumulados[notaAtualIndex]++;notaAtualIndex++;checarVitoria();if(notaAtualIndex<8)atualizarFeedback(`Correto! Escolha a ${notaAtualIndex+1}ª nota. Erros acumulados: ${totalErros}`);}else{totalErros++;errosPorNota[notaAtualIndex]++;box.classList.add('nota-errada');atualizarFeedback(`Ops! Nota ${nota} errada. Erros acumulados: ${totalErros}`,'danger');setTimeout(()=>box.classList.remove('nota-errada'),700);}atualizarGraficoNotas();}
+function checarVitoria(){if(notaAtualIndex===8){document.getElementById('botao-proximo').classList.remove('d-none');document.getElementById('botao-tocar-escala').classList.remove('d-none');document.querySelectorAll('.nota-teclado').forEach(btn=>btn.setAttribute('disabled','true'));desafiosCompletados++;document.getElementById('contador-desafios').textContent=desafiosCompletados;if(desafiosCompletados>=MAX_DESAFIOS)setTimeout(exibirRelatorioFinal,1000);atualizarGraficoAcumulado();}}
+function proximoDesafio(){if(desafiosCompletados<MAX_DESAFIOS)gerarDesafio();else exibirRelatorioFinal();}
+function exibirRelatorioFinal(){jogoFinalizado=true;document.getElementById('area-jogo').classList.add('d-none');document.getElementById('area-relatorio').classList.remove('d-none');document.getElementById('relatorio-detalhes').innerHTML=`Desafios completados: ${desafiosCompletados}<br>Erros totais: ${totalErros}`;}
 
-        function tocarEscalaCompleta() {
-            if (!synth) return; 
-            // ALTERAÇÃO AQUI: Mudança de "4" para "3" para notas mais graves.
-            const notasComOitava = escalaCorreta.map(nota => nota + "3");
-            notasComOitava.forEach((nota, index) => {
-                Tone.Transport.scheduleOnce(time => {
-                    synth.triggerAttackRelease(nota, "0.4", time);
-                }, index * 0.5);
-            });
-            Tone.Transport.start(); 
-            setTimeout(() => Tone.Transport.stop(), notasComOitava.length * 500);
-        }
+// --- Gráficos ---
+let graficoNotas, graficoAcumulado;
+function atualizarGraficoNotas(){if(!graficoNotas){const ctx=document.getElementById('grafico-notas').getContext('2d');graficoNotas=new Chart(ctx,{type:'bar',data:{labels:['1ª','2ª','3ª','4ª','5ª','6ª','7ª','8ª'],datasets:[{label:'Erros nesta escala',data:errosPorNota,backgroundColor:'rgba(220,53,69,0.7)'}]},options:{responsive:true,plugins:{legend:{display:true}}}});}else{graficoNotas.data.datasets[0].data=errosPorNota;graficoNotas.update();}}
+function atualizarGraficoAcumulado(){if(!graficoAcumulado){const ctx=document.getElementById('grafico-acumulado').getContext('2d');graficoAcumulado=new Chart(ctx,{type:'bar',data:{labels:['1ª','2ª','3ª','4ª','5ª','6ª','7ª','8ª'],datasets:[{label:'Acertos acumulados',data:acertosAcumulados,backgroundColor:'rgba(40,167,69,0.7)'}]},options:{responsive:true,plugins:{legend:{display:true}}}});}else{graficoAcumulado.data.datasets[0].data=acertosAcumulados;graficoAcumulado.update();}}
 
-        function gerarEscalaCorreta(tonicaIndex, modo) {
-            const intervalos = padraoEscala[modo].intervalos;
-            return intervalos.map(int => notasCromaticas[(tonicaIndex + int) % 12]);
-        }
-
-        function renderizarTeclado() {
-            const tecladoDiv = document.getElementById('teclado-container');
-            tecladoDiv.innerHTML = ''; 
-            notasCromaticas.forEach(nota => {
-                const button = document.createElement('button');
-                button.className = 'btn nota-teclado';
-                if (nota.includes("#")) {
-                    button.classList.add("sustenido");
-                } else {
-                    button.classList.add("btn-light"); 
-                }
-                button.textContent = nota;
-                button.setAttribute('onclick', `checarNota('${nota}')`);
-                tecladoDiv.appendChild(button);
-            });
-        }
-
-        function renderizarEscalaContainer() {
-            const escalaDiv = document.getElementById('escala-container');
-            escalaDiv.innerHTML = ''; 
-
-            const linhaNotas = document.createElement('div');
-            linhaNotas.className = "d-flex justify-content-center"; 
-            for (let i = 0; i < 8; i++) {
-                const notaBox = document.createElement('div');
-                notaBox.className = 'nota-escala';
-                notaBox.id = `nota-box-${i}`;
-                if (i === 0) {
-                    notaBox.textContent = escalaCorreta[0];
-                    notaBox.classList.add('nota-preenchida');
-                } else {
-                    notaBox.textContent = '?';
-                }
-                linhaNotas.appendChild(notaBox);
-            }
-            escalaDiv.appendChild(linhaNotas);
-
-            // Linha dos intervalos
-            const linhaIntervalos = document.createElement('div');
-            linhaIntervalos.className = 'intervalos-container';
-            intervalosDescricao.forEach(intervalo => {
-                const box = document.createElement('div');
-                box.className = 'intervalo-box';
-                box.textContent = intervalo;
-                linhaIntervalos.appendChild(box);
-            });
-            escalaDiv.appendChild(linhaIntervalos);
-        }
-
-        function atualizarFeedback(mensagem, tipo = 'info') {
-            const feedback = document.getElementById('feedback-mensagem');
-            feedback.className = `alert alert-${tipo} text-center`;
-            feedback.textContent = mensagem;
-        }
-
-        function checarVitoria() {
-            if (notaAtualIndex === 8) {
-                desafiosCompletados++;
-                document.getElementById('contador-desafios').textContent = desafiosCompletados;
-                atualizarFeedback(`🏆 Desafio ${desafiosCompletados} concluído! Erros acumulados: ${totalErros}`, 'success');
-                document.getElementById('botao-tocar-escala').classList.remove('d-none'); 
-                document.querySelectorAll('.nota-teclado').forEach(btn => btn.setAttribute('disabled', 'true'));
-                tocarEscalaCompleta(); 
-                if (desafiosCompletados >= MAX_DESAFIOS) {
-                    setTimeout(exibirRelatorioFinal, 2000); 
-                } else {
-                    document.getElementById('botao-proximo').classList.remove('d-none');
-                }
-            }
-        }
-
-        function iniciarJogo(modo) {
-            inicializarAudio();
-            if (modo !== 'major') return; 
-            modoAtual = 'major';
-            document.getElementById('modo-selecao').classList.add('d-none');
-            document.getElementById('area-jogo').classList.remove('d-none');
-            renderizarTeclado(); 
-            gerarDesafio();
-        }
-
-        function gerarDesafio() {
-            notasComErroNesteDesafio.clear();
-            const tonicaIndex = Math.floor(Math.random() * 12);
-            const tonicaNome = notasCromaticas[tonicaIndex];
-            escalaCorreta = gerarEscalaCorreta(tonicaIndex, modoAtual);
-            notaAtualIndex = 1; 
-            document.getElementById('desafio-titulo').textContent = `Monte a Escala de ${tonicaNome} ${padraoEscala[modoAtual].nome}`;
-            document.getElementById('botao-proximo').classList.add('d-none');
-            document.getElementById('botao-tocar-escala').classList.add('d-none');
-            document.querySelectorAll('.nota-teclado').forEach(btn => btn.removeAttribute('disabled'));
-            document.getElementById('contador-desafios').textContent = desafiosCompletados + 1;
-            renderizarEscalaContainer();
-            atualizarFeedback(`Escolha a ${notaAtualIndex + 1}ª nota da escala. Erros acumulados: ${totalErros}`);
-        }
-
-        function checarNota(notaClicada) {
-            if (notaAtualIndex >= 8 || jogoFinalizado) return; 
-            tocarNota(notaClicada); 
-            const notaEsperada = escalaCorreta[notaAtualIndex];
-            const notaBox = document.getElementById(`nota-box-${notaAtualIndex}`);
-            const indiceNota = notaAtualIndex; 
-            if (notaClicada === notaEsperada) {
-                notaBox.textContent = notaClicada;
-                notaBox.classList.remove('nota-errada');
-                notaBox.classList.add('nota-preenchida');
-                notaAtualIndex++;
-                checarVitoria();
-                if (notaAtualIndex < 8) {
-                    atualizarFeedback(`Correto! Escolha a ${notaAtualIndex + 1}ª nota. Erros acumulados: ${totalErros}`);
-                }
-            } else {
-                if (!notasComErroNesteDesafio.has(indiceNota)) {
-                    totalErros++;
-                    notasComErroNesteDesafio.add(indiceNota);
-                }
-                notaBox.classList.add('nota-errada');
-                atualizarFeedback(`Ops! A nota ${notaClicada} está errada. Erros acumulados: ${totalErros}. Tente novamente!`, 'danger');
-                setTimeout(() => {
-                    notaBox.classList.remove('nota-errada');
-                    atualizarFeedback(`Escolha a ${notaAtualIndex + 1}ª nota da escala. Erros acumulados: ${totalErros}`);
-                }, 500);
-            }
-        }
-
-        function exibirRelatorioFinal() {
-            jogoFinalizado = true;
-            document.getElementById('area-jogo').classList.add('d-none');
-            document.getElementById('area-relatorio').classList.remove('d-none');
-            const relatorioDiv = document.getElementById('relatorio-detalhes');
-            const totalNotas = MAX_DESAFIOS * 7;
-            const acertosTotal = totalNotas - totalErros;
-            const taxaAcerto = ((acertosTotal / totalNotas) * 100).toFixed(1);
-            let mensagem = ``;
-            if (totalErros < MAX_ERROS_PARA_PASSAR) {
-                mensagem = `
-                    <p class="text-danger fw-bold">⚠️ Necessária Repetição ⚠️</p>
-                    <p>Você completou 10 desafios com um total de ${totalErros} erros.</p>
-                    <p>Taxa de Acerto: ${taxaAcerto}%</p>
-                    <p class="mt-4">Seu total de erros é menor que 7. O desafio será reiniciado para garantir a maestria!</p>
-                `;
-                setTimeout(reiniciarCicloDesafios, 6000); 
-            } else {
-                mensagem = `
-                    <p class="text-success fw-bold">🎉 Parabéns, Mestre das Escalas! 🎉</p>
-                    <p>Você completou 10 desafios com um total de ${totalErros} erros.</p>
-                    <p>Taxa de Acerto: ${taxaAcerto}%</p>
-                    <p class="mt-4">Clique em "Recomeçar o Jogo" para um novo desafio.</p>
-                `;
-            }
-            relatorioDiv.innerHTML = mensagem;
-        }
-
-        function reiniciarCicloDesafios() {
-            desafiosCompletados = 0;
-            totalErros = 0;
-            jogoFinalizado = false;
-            document.getElementById('area-relatorio').classList.add('d-none');
-            document.getElementById('area-jogo').classList.remove('d-none');
-            gerarDesafio();
-            atualizarFeedback(`Iniciando novo ciclo de 10 desafios! Erros zerados: ${totalErros}`);
-        }
-
-        function proximoDesafio() {
-            if (desafiosCompletados < MAX_DESAFIOS) {
-                gerarDesafio();
-            } else {
-                exibirRelatorioFinal();
-            }
-        }
-
-        function showWelcomeModal() {
-            const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
-            welcomeModal.show();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('area-relatorio').classList.add('d-none');
-            showWelcomeModal();
-        });
-    </script>
+// --- Inicialização ---
+document.addEventListener('DOMContentLoaded',()=>{const modal=new bootstrap.Modal(document.getElementById('welcomeModal'));modal.show();});
+</script>
 </body>
 </html>
+
+
 
