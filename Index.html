@@ -21,6 +21,10 @@
             font-size: 1.1em;
             cursor: pointer;
         }
+        .nota-teclado.sustenido {
+            background-color: black !important;
+            color: white !important;
+        }
         .nota-escala {
             width: 70px;
             height: 70px;
@@ -56,6 +60,17 @@
             80% { transform: translate(-1px, -1px) rotate(1deg); }
             90% { transform: translate(1px, 2px) rotate(0deg); }
             100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .intervalos-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 8px;
+            gap: 10px;
+        }
+        .intervalo-box {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #444;
         }
     </style>
 </head>
@@ -125,7 +140,7 @@
 				<span class="badge bg-dark fs-5">Desafio <span id="contador-desafios">1</span> de 10</span>
             </div>
             
-            <div id="escala-container" class="d-flex justify-content-center mb-4"></div>
+            <div id="escala-container" class="d-flex justify-content-center flex-column align-items-center mb-4"></div>
 
             <div class="alert alert-info text-center" id="feedback-mensagem" role="alert">
                 Clique nas notas abaixo para construir a escala.
@@ -150,9 +165,10 @@
         const padraoEscala = {
             major: { 
                 nome: "Maior", 
-                intervalos: [0, 2, 4, 5, 7, 9, 11, 12] // agora 8 notas (inclui a oitava repetida)
+                intervalos: [0, 2, 4, 5, 7, 9, 11, 12] 
             }
         };
+        const intervalosDescricao = ["Tom", "Tom", "Semitom", "Tom", "Tom", "Tom", "Semitom"];
 
         // --- VARIÁVEIS ---
         const MAX_DESAFIOS = 10;
@@ -173,7 +189,7 @@
                     oscillator: { type: "sawtooth" },
                     envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 }
                 }).toDestination();
-                Tone.start(); // iPhone precisa disso após interação do usuário
+                Tone.start();
             }
         }
 
@@ -206,7 +222,12 @@
             tecladoDiv.innerHTML = ''; 
             notasCromaticas.forEach(nota => {
                 const button = document.createElement('button');
-                button.className = 'btn btn-secondary nota-teclado';
+                button.className = 'btn nota-teclado';
+                if (nota.includes("#")) {
+                    button.classList.add("sustenido");
+                } else {
+                    button.classList.add("btn-secondary");
+                }
                 button.textContent = nota;
                 button.setAttribute('onclick', `checarNota('${nota}')`);
                 tecladoDiv.appendChild(button);
@@ -216,6 +237,9 @@
         function renderizarEscalaContainer() {
             const escalaDiv = document.getElementById('escala-container');
             escalaDiv.innerHTML = ''; 
+
+            const linhaNotas = document.createElement('div');
+            linhaNotas.className = "d-flex justify-content-center";
             for (let i = 0; i < 8; i++) {
                 const notaBox = document.createElement('div');
                 notaBox.className = 'nota-escala';
@@ -226,9 +250,24 @@
                 } else {
                     notaBox.textContent = '?';
                 }
-                escalaDiv.appendChild(notaBox);
+                linhaNotas.appendChild(notaBox);
             }
+            escalaDiv.appendChild(linhaNotas);
+
+            // Linha dos intervalos
+            const linhaIntervalos = document.createElement('div');
+            linhaIntervalos.className = 'intervalos-container';
+            intervalosDescricao.forEach(intervalo => {
+                const box = document.createElement('div');
+                box.className = 'intervalo-box';
+                box.textContent = intervalo;
+                linhaIntervalos.appendChild(box);
+            });
+            escalaDiv.appendChild(linhaIntervalos);
         }
+
+        // --- RESTANTE DO CÓDIGO (checarNota, iniciarJogo, etc) continua igual ---
+        // (mantive para não ficar duplicado, já que a lógica principal não muda)
 
         function atualizarFeedback(mensagem, tipo = 'info') {
             const feedback = document.getElementById('feedback-mensagem');
@@ -253,7 +292,7 @@
         }
 
         function iniciarJogo(modo) {
-            inicializarAudio(); // garante áudio no iPhone
+            inicializarAudio();
             if (modo !== 'major') return; 
             modoAtual = 'major';
             document.getElementById('modo-selecao').classList.add('d-none');
@@ -311,7 +350,7 @@
             document.getElementById('area-jogo').classList.add('d-none');
             document.getElementById('area-relatorio').classList.remove('d-none');
             const relatorioDiv = document.getElementById('relatorio-detalhes');
-            const totalNotas = MAX_DESAFIOS * 7; // agora são 7 notas a acertar por desafio
+            const totalNotas = MAX_DESAFIOS * 7;
             const acertosTotal = totalNotas - totalErros;
             const taxaAcerto = ((acertosTotal / totalNotas) * 100).toFixed(1);
             let mensagem = ``;
@@ -364,3 +403,4 @@
     </script>
 </body>
 </html>
+
