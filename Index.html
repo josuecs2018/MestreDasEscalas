@@ -224,7 +224,8 @@
         }
 
         function tocarNota(nota) {
-            const notaComOitava = nota + "4"; 
+            // ALTERAÇÃO AQUI: Mudança de "4" para "3" para notas mais graves.
+            const notaComOitava = nota + "3"; 
             if (synth) {
                 synth.triggerAttackRelease(notaComOitava, "0.4s");
             }
@@ -232,7 +233,8 @@
 
         function tocarEscalaCompleta() {
             if (!synth) return; 
-            const notasComOitava = escalaCorreta.map(nota => nota + "4");
+            // ALTERAÇÃO AQUI: Mudança de "4" para "3" para notas mais graves.
+            const notasComOitava = escalaCorreta.map(nota => nota + "3");
             notasComOitava.forEach((nota, index) => {
                 Tone.Transport.scheduleOnce(time => {
                     synth.triggerAttackRelease(nota, "0.4", time);
@@ -256,7 +258,6 @@
                 if (nota.includes("#")) {
                     button.classList.add("sustenido");
                 } else {
-                    // Mudei para btn-light para melhor contraste visual em telas pequenas
                     button.classList.add("btn-light"); 
                 }
                 button.textContent = nota;
@@ -270,7 +271,6 @@
             escalaDiv.innerHTML = ''; 
 
             const linhaNotas = document.createElement('div');
-            // Mantive d-flex justify-content-center
             linhaNotas.className = "d-flex justify-content-center"; 
             for (let i = 0; i < 8; i++) {
                 const notaBox = document.createElement('div');
