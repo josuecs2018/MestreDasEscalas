@@ -7,37 +7,69 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
+        /* AJUSTES RESPONSIVOS */
         body {
             background-color: #f8f9fa;
         }
         .nota-teclado {
-            width: 60px;
-            height: 60px;
-            margin: 4px;
+            /* Tamanho ligeiramente menor para caber mais em telas pequenas */
+            width: 50px; 
+            height: 50px;
+            margin: 3px; /* Margem reduzida */
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.1em;
+            font-size: 0.9em; /* Fonte um pouco menor */
             cursor: pointer;
+            border-radius: 5px; /* Bordas arredondadas */
+            /* Transição para feedback visual mais suave */
+            transition: background-color 0.2s, color 0.2s, transform 0.1s; 
         }
+
+        /* MEDIA QUERY para telas maiores */
+        @media (min-width: 768px) {
+            .nota-teclado {
+                width: 60px;
+                height: 60px;
+                margin: 4px;
+                font-size: 1.1em;
+            }
+        }
+
         .nota-teclado.sustenido {
             background-color: black !important;
             color: white !important;
         }
+        .nota-teclado:active {
+            transform: scale(0.95); /* Efeito de clique */
+        }
+        
         .nota-escala {
-            width: 70px;
-            height: 70px;
-            margin: 5px;
+            /* Tamanho ajustado para ser mais amigável ao celular */
+            width: 45px;
+            height: 45px;
+            margin: 3px; 
             border: 2px solid #343a40;
             background-color: #e9ecef;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2em;
+            font-size: 1em; /* Fonte menor */
             font-weight: bold;
             border-radius: 8px;
+            flex-shrink: 0; /* Impede que diminua demais */
         }
+
+        @media (min-width: 768px) {
+            .nota-escala {
+                width: 70px;
+                height: 70px;
+                margin: 5px;
+                font-size: 1.2em;
+            }
+        }
+
         .nota-preenchida {
             background-color: #28a745 !important;
             color: white;
@@ -62,21 +94,23 @@
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
         .intervalos-container {
+            /* Adicionado flex-wrap para quebrar a linha em telas pequenas */
             display: flex;
             justify-content: center;
+            flex-wrap: wrap; 
             margin-top: 8px;
-            gap: 10px;
+            gap: 5px; /* Reduzido o gap */
         }
         .intervalo-box {
-            font-size: 0.9rem;
+            font-size: 0.8rem; /* Fonte menor para caber */
             font-weight: bold;
             color: #444;
+            padding: 2px 5px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Modal de Boas-Vindas -->
     <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -100,7 +134,6 @@
         </div>
     </div>
 
-    <!-- Container Principal -->
     <div class="container mt-5">
         <h1 class="text-center mb-4">Mestre das Escalas</h1>
 
@@ -119,7 +152,6 @@
             <p class="mt-3 text-danger fw-bold">Modo de Escalas Menores desabilitado conforme as regras do desafio.</p>
         </div>
         
-        <!-- Relatório Final -->
         <div id="area-relatorio" class="mt-5 p-4 border rounded shadow-sm d-none">
             <h2 class="text-center text-success mb-4">Relatório Final do Desafio</h2>
             <div id="relatorio-detalhes" class="fs-4 text-center"></div>
@@ -128,16 +160,15 @@
             </div>
         </div>
 
-        <!-- Área do Jogo -->
         <div id="area-jogo" class="mt-5 p-4 border rounded shadow-sm d-none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <button class="btn btn-secondary btn-sm" onclick="location.reload()">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-4">
+                <button class="btn btn-secondary btn-sm mb-2 mb-sm-0" onclick="location.reload()">
                     &larr; Voltar ao Início / Recomeçar
                 </button>
-				</br>
                 
-                <h3 id="desafio-titulo" class="m-0 flex-grow-1 text-center"></h3>
-				<span class="badge bg-dark fs-5">Desafio <span id="contador-desafios">1</span> de 10</span>
+                <h3 id="desafio-titulo" class="m-0 text-center flex-grow-1 mx-sm-3"></h3> 
+                
+                <span class="badge bg-dark fs-6 mt-2 mt-sm-0">Desafio <span id="contador-desafios">1</span> de 10</span>
             </div>
             
             <div id="escala-container" class="d-flex justify-content-center flex-column align-items-center mb-4"></div>
@@ -155,7 +186,6 @@
         </div>
     </div>
 
-    <!-- Dependências -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/tone@14.7.58/build/Tone.js"></script>
 
@@ -226,7 +256,8 @@
                 if (nota.includes("#")) {
                     button.classList.add("sustenido");
                 } else {
-                    button.classList.add("btn-secondary");
+                    // Mudei para btn-light para melhor contraste visual em telas pequenas
+                    button.classList.add("btn-light"); 
                 }
                 button.textContent = nota;
                 button.setAttribute('onclick', `checarNota('${nota}')`);
@@ -239,7 +270,8 @@
             escalaDiv.innerHTML = ''; 
 
             const linhaNotas = document.createElement('div');
-            linhaNotas.className = "d-flex justify-content-center";
+            // Mantive d-flex justify-content-center
+            linhaNotas.className = "d-flex justify-content-center"; 
             for (let i = 0; i < 8; i++) {
                 const notaBox = document.createElement('div');
                 notaBox.className = 'nota-escala';
@@ -265,9 +297,6 @@
             });
             escalaDiv.appendChild(linhaIntervalos);
         }
-
-        // --- RESTANTE DO CÓDIGO (checarNota, iniciarJogo, etc) continua igual ---
-        // (mantive para não ficar duplicado, já que a lógica principal não muda)
 
         function atualizarFeedback(mensagem, tipo = 'info') {
             const feedback = document.getElementById('feedback-mensagem');
@@ -392,8 +421,8 @@
         }
 
         function showWelcomeModal() {
-             const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
-             welcomeModal.show();
+            const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+            welcomeModal.show();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
