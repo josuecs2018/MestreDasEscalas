@@ -1,139 +1,174 @@
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-.wrap{font-family:var(--font-sans);padding:1.5rem 1rem;max-width:700px;margin:0 auto}
-h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+.app{font-family:var(--font-sans);background:var(--color-background-tertiary);min-height:600px;max-width:390px;margin:0 auto;display:flex;flex-direction:column}
+.screen{display:none;flex-direction:column;flex:1}
+.screen.on{display:flex}
 
-.welcome-bg{min-height:340px;background:var(--color-background-primary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem}
-.welcome-card{padding:2.5rem 2rem;max-width:360px;width:100%;text-align:center}
-.welcome-icon{font-size:36px;color:#185FA5;margin-bottom:1.25rem}
-.welcome-card h3{font-size:22px;font-weight:500;color:var(--color-text-primary);margin-bottom:.75rem}
-.welcome-card p{font-size:14px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:.35rem}
-.btn-start{display:block;width:100%;margin-top:1.75rem;padding:12px 0;background:#185FA5;color:#E6F1FB;border:none;border-radius:var(--border-radius-md);font-family:var(--font-sans);font-size:15px;font-weight:500;cursor:pointer;transition:background .15s,transform .1s}
-.btn-start:hover{background:#0C447C}
-.btn-start:active{transform:scale(.98)}
+.topbar{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:14px 16px 10px;display:flex;align-items:center;gap:10px;min-height:54px}
+.topbar-title{font-size:16px;font-weight:500;color:var(--color-text-primary);flex:1;text-align:center}
+.topbar-back{color:var(--color-text-secondary);font-size:22px;cursor:pointer;padding:4px;line-height:1}
+.topbar-badge{font-size:11px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:20px;padding:3px 9px;color:var(--color-text-secondary);white-space:nowrap}
 
-.piano-mode-btn{width:100%;height:80px;border:1.5px solid #bbb;border-top:2.5px solid #ccc;border-radius:0 0 8px 8px;cursor:pointer;font-family:var(--font-sans);font-size:14px;font-weight:500;transition:transform .1s,background .12s;outline:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:12px;gap:4px}
-.piano-mode-btn:active{transform:translateY(4px) scale(.99)}
-.piano-mode-btn .mode-icon{font-size:20px;color:inherit}
-.piano-mode-btn .mode-label{font-size:13px;font-weight:500}
-.piano-mode-btn .mode-sub{font-size:11px;opacity:.75}
-.white-mode{background:#f8f8f6;color:#333;border-color:#bbb}
-.white-mode:hover{background:#efefed}
-.black-mode{background:#1a1a1a;color:#e0e0e0;border-color:#555}
-.black-mode:hover{background:#2e2e2e}
-.mode-select-row{display:flex;gap:0;justify-content:center;align-items:flex-end}
+.body{flex:1;padding:16px;display:flex;flex-direction:column;gap:12px}
 
-.section{display:none}
-.section.visible{display:block}
+.welcome-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;padding:2rem 1rem}
+.hero-icon{width:72px;height:72px;border-radius:22px;background:#E6F1FB;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:34px;color:#185FA5}
+.hero-title{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.hero-sub{font-size:14px;color:var(--color-text-secondary);line-height:1.6;max-width:240px}
+.hero-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+.pill{font-size:11px;padding:3px 10px;border-radius:20px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);background:var(--color-background-secondary)}
 
-.game-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;gap:8px;flex-wrap:wrap}
-.challenge-title{font-size:15px;font-weight:500;color:var(--color-text-primary);flex:1;text-align:center}
-.badge{font-size:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:4px 10px;color:var(--color-text-secondary);white-space:nowrap}
-.btn-sm{cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);border-radius:var(--border-radius-md);padding:6px 14px;font-size:13px;font-weight:500;transition:background .15s,transform .1s}
-.btn-sm:hover{background:var(--color-background-tertiary)}
-.btn-sm:active{transform:scale(.98)}
+.btn-full{width:100%;padding:15px;border:none;border-radius:14px;font-family:var(--font-sans);font-size:16px;font-weight:500;cursor:pointer;transition:transform .1s,opacity .15s}
+.btn-full:active{transform:scale(.98);opacity:.88}
+.btn-blue{background:#185FA5;color:#E6F1FB}
+.btn-outline{background:var(--color-background-primary);color:var(--color-text-primary);border:0.5px solid var(--color-border-secondary)}
 
-.scale-row{display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin-bottom:6px}
-.note-box{width:50px;height:50px;border:1.5px solid var(--color-border-primary);background:var(--color-background-secondary);border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--color-text-primary);flex-shrink:0;transition:background .15s,border-color .15s}
-.note-box.filled{background:#EAF3DE;border-color:#3B6D11;color:#27500A}
-.note-box.wrong{background:#FCEBEB;border-color:#A32D2D;color:#791F1F;animation:shake .4s}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.section-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
 
-.intervals-row{display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin-bottom:1.25rem}
-.int-pill{font-size:11px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:20px;padding:2px 8px;border:0.5px solid var(--color-border-tertiary)}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode-card{border-radius:14px;padding:16px 12px;cursor:pointer;border:1.5px solid transparent;transition:transform .1s,border-color .15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.mode-card:active{transform:scale(.97)}
+.mode-card .mc-icon{font-size:26px;margin-bottom:2px}
+.mode-card .mc-title{font-size:14px;font-weight:500}
+.mode-card .mc-sub{font-size:11px;line-height:1.4}
+.mode-major{background:#f5f5f3;border-color:#ccc;color:#333}
+.mode-major .mc-sub{color:#666}
+.mode-minor{background:#1e1e1e;border-color:#444;color:#e0e0e0}
+.mode-minor .mc-sub{color:#999}
+.piano-row{display:flex;justify-content:center;align-items:flex-end;gap:2px;padding:0 2px}
+.wk{width:26px;height:56px;background:#f7f7f5;border:1px solid #bbb;border-bottom:2px solid #aaa;border-radius:0 0 5px 5px;cursor:pointer;transition:background .1s,transform .08s;flex-shrink:0;position:relative}
+.wk:active,.wk.pressed{background:#d0e8ff;transform:translateY(2px)}
+.wk.hit{background:#C0DD97}
+.wk.miss{background:#F09595}
+.bk{width:18px;height:35px;background:#1a1a1a;border:1px solid #555;border-bottom:2px solid #333;border-radius:0 0 4px 4px;cursor:pointer;transition:background .1s,transform .08s;flex-shrink:0;z-index:2;position:relative}
+.bk:active,.bk.pressed{background:#1a3a5c;transform:translateY(2px)}
+.bk.hit{background:#3B6D11}
+.bk.miss{background:#A32D2D}
+.key-lbl{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:500;pointer-events:none;white-space:nowrap}
+.wk .key-lbl{color:#666}
+.bk .key-lbl{color:#999}
 
-.feedback{border-radius:var(--border-radius-md);padding:9px 14px;text-align:center;font-size:13px;margin-bottom:1rem;border:0.5px solid}
+.scale-display{background:var(--color-background-primary);border-radius:14px;border:0.5px solid var(--color-border-tertiary);padding:12px}
+.scale-notes{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.nbox{width:38px;height:38px;border-radius:10px;border:1.5px solid var(--color-border-primary);background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--color-text-primary);transition:background .15s}
+.nbox.filled{background:#EAF3DE;border-color:#3B6D11;color:#27500A}
+.nbox.wrong{background:#FCEBEB;border-color:#A32D2D;color:#791F1F;animation:shk .35s}
+@keyframes shk{0%,100%{transform:translateX(0)}30%{transform:translateX(-4px)}70%{transform:translateX(4px)}}
+.intervals{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.int-chip{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+
+.feedback-bar{border-radius:10px;padding:10px 14px;font-size:13px;text-align:center;border:0.5px solid}
 .fb-info{background:var(--color-background-secondary);border-color:var(--color-border-tertiary);color:var(--color-text-secondary)}
-.fb-success{background:#EAF3DE;border-color:#3B6D11;color:#27500A}
-.fb-danger{background:#FCEBEB;border-color:#A32D2D;color:#791F1F}
+.fb-ok{background:#EAF3DE;border-color:#3B6D11;color:#27500A}
+.fb-err{background:#FCEBEB;border-color:#A32D2D;color:#791F1F}
 
-.piano-keyboard{display:flex;justify-content:center;align-items:flex-end;gap:0;margin-bottom:1.25rem}
-.piano-keyboard .white-key,.piano-keyboard .black-key{margin:0 1px}
-.piano-btn{position:relative;cursor:pointer;border:none;outline:none;font-family:var(--font-sans);transition:transform .1s}
-.piano-btn:active{transform:translateY(3px) scale(.98)}
-.piano-btn .key-label{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:500;pointer-events:none;white-space:nowrap}
-.white-key{width:48px;height:96px;background:#f8f8f6;border:1.5px solid #bbb;border-top:2.5px solid #ccc;border-radius:0 0 6px 6px;color:#444}
-.white-key:hover{background:#efefed}
-.white-key .key-label{color:#555}
-.black-key{width:34px;height:60px;background:#1a1a1a;border:1.5px solid #555;border-top:2.5px solid #333;border-radius:0 0 5px 5px;color:#ccc;z-index:2}
-.black-key:hover{background:#2e2e2e}
-.black-key .key-label{color:#aaa;font-size:10px}
+.bottom-actions{display:flex;gap:8px;padding:0 0 4px}
+.act-btn{flex:1;padding:13px;border-radius:12px;font-family:var(--font-sans);font-size:14px;font-weight:500;cursor:pointer;border:0.5px solid;transition:transform .1s,opacity .15s;text-align:center}
+.act-btn:active{transform:scale(.97);opacity:.85}
+.act-play{background:#E6F1FB;color:#0C447C;border-color:#185FA5}
+.act-next{background:#EAF3DE;color:#27500A;border-color:#3B6D11}
+.act-home{background:var(--color-background-secondary);color:var(--color-text-secondary);border-color:var(--color-border-tertiary)}
 
-.action-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.btn-action{cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);border-radius:var(--border-radius-md);padding:8px 18px;font-size:13px;font-weight:500;transition:background .15s,transform .1s}
-.btn-action:hover{background:var(--color-background-secondary)}
-.btn-action:active{transform:scale(.98)}
-.btn-green{background:#EAF3DE;color:#27500A;border-color:#3B6D11}
-.btn-green:hover{background:#C0DD97}
-.btn-blue{background:#E6F1FB;color:#0C447C;border-color:#185FA5}
-.btn-blue:hover{background:#B5D4F4}
-
-.report-card{background:var(--color-background-primary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);padding:2rem;text-align:center}
-.report-card h3{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:1.25rem}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
-.stat-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem}
-.stat-box .stat-val{font-size:24px;font-weight:500;color:var(--color-text-primary)}
-.stat-box .stat-lbl{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-box{background:var(--color-background-secondary);border-radius:12px;padding:14px;text-align:center}
+.stat-val{font-size:28px;font-weight:500;color:var(--color-text-primary)}
+.stat-lbl{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.result-msg{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:14px;padding:14px;font-size:13px;color:var(--color-text-secondary);text-align:center;line-height:1.6}
+.result-title{font-size:17px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px}
 </style>
 
-<h2 class="sr-only">Mestre das Escalas — jogo interativo para aprender escalas musicais maiores e menores</h2>
-<div class="wrap">
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Mestre das Escalas — app de treino de escalas musicais</h2>
 
-<div id="welcomeSection" class="section visible">
-  <div class="welcome-bg">
-    <div class="welcome-card">
-      <div class="welcome-icon"><i class="ti ti-music" aria-hidden="true"></i></div>
-      <h3>Mestre das Escalas</h3>
-      <p>Construa escalas musicais clicando nas notas certas no teclado.</p>
-      <p>Complete 10 desafios para provar sua maestria.</p>
-      <button class="btn-start" onclick="showSelect()">Começar a jogar</button>
+<div class="app">
+
+<div id="sWelcome" class="screen on">
+  <div class="body" style="justify-content:space-between">
+    <div class="welcome-hero">
+      <div class="hero-icon"><i class="ti ti-music" aria-hidden="true"></i></div>
+      <div class="hero-title">Mestre das Escalas</div>
+      <div class="hero-sub">Construa escalas clicando nas notas certas. Complete 10 desafios para provar sua maestria.</div>
+      <div class="hero-pills">
+        <span class="pill"><i class="ti ti-sun" style="font-size:12px;vertical-align:-1px" aria-hidden="true"></i> Maiores</span>
+        <span class="pill"><i class="ti ti-moon" style="font-size:12px;vertical-align:-1px" aria-hidden="true"></i> Menores</span>
+        <span class="pill">10 desafios</span>
+      </div>
+    </div>
+    <div style="padding-bottom:8px">
+      <button class="btn-full btn-blue" onclick="go('sSelect')">Começar a jogar</button>
     </div>
   </div>
 </div>
 
-<div id="selectSection" class="section">
-  <p style="text-align:center;font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem">Escolha o modo de jogo</p>
-  <div class="mode-select-row">
-    <button class="piano-mode-btn white-mode" style="border-radius:0 0 0 8px;border-right:none" onclick="startGame('major')">
-      <i class="ti ti-sun mode-icon" aria-hidden="true"></i>
-      <span class="mode-label">Escalas maiores</span>
-      <span class="mode-sub">Tom Tom Semitom…</span>
-    </button>
-    <button class="piano-mode-btn black-mode" style="border-radius:0 0 8px 0" onclick="startGame('minor')">
-      <i class="ti ti-moon mode-icon" aria-hidden="true"></i>
-      <span class="mode-label">Escalas menores</span>
-      <span class="mode-sub">Tom Semitom Tom…</span>
-    </button>
+<div id="sSelect" class="screen">
+  <div class="topbar">
+    <span class="topbar-back" onclick="go('sWelcome')" aria-label="Voltar"><i class="ti ti-arrow-left" aria-hidden="true"></i></span>
+    <div class="topbar-title">Escolha o modo</div>
+    <span style="width:28px"></span>
   </div>
-  <div style="height:8px;background:linear-gradient(#1a1a1a 0%,#1a1a1a 50%,#f8f8f6 50%,#f8f8f6 100%);border-radius:0 0 4px 4px;max-width:132px;margin:0 auto"></div>
-</div>
-
-<div id="gameSection" class="section">
-  <div class="game-header">
-    <button class="btn-sm" onclick="goHome()"><i class="ti ti-arrow-left" style="font-size:14px;vertical-align:-1px" aria-hidden="true"></i> Início</button>
-    <div id="challengeTitle" class="challenge-title"></div>
-    <div class="badge">Desafio <span id="counter">1</span>/10</div>
-  </div>
-  <div id="scaleRow" class="scale-row"></div>
-  <div id="intervalsRow" class="intervals-row"></div>
-  <div id="feedback" class="feedback fb-info">Clique nas notas para construir a escala.</div>
-  <div id="pianoKb" class="piano-keyboard"></div>
-  <div class="action-row">
-    <button class="btn-action btn-blue" id="btnPlay" style="display:none" onclick="playScale()"><i class="ti ti-player-play" style="font-size:14px;vertical-align:-1px" aria-hidden="true"></i> Tocar escala</button>
-    <button class="btn-action btn-green" id="btnNext" style="display:none" onclick="nextChallenge()">Próxima <i class="ti ti-arrow-right" style="font-size:14px;vertical-align:-1px" aria-hidden="true"></i></button>
-  </div>
-</div>
-
-<div id="reportSection" class="section">
-  <div class="report-card">
-    <h3 id="reportTitle"></h3>
-    <div class="stat-grid">
-      <div class="stat-box"><div class="stat-val" id="statErrors">0</div><div class="stat-lbl">erros totais</div></div>
-      <div class="stat-box"><div class="stat-val" id="statRate">0%</div><div class="stat-lbl">taxa de acerto</div></div>
+  <div class="body" style="justify-content:space-between">
+    <div>
+      <div class="section-label" style="margin-bottom:10px">Tipo de escala</div>
+      <div class="mode-cards">
+        <div class="mode-card mode-major" onclick="startGame('major')">
+          <div class="mc-icon"><i class="ti ti-sun" aria-hidden="true"></i></div>
+          <div class="mc-title">Maior</div>
+          <div class="mc-sub">Tom · Tom · Semitom · Tom · Tom · Tom · Semitom</div>
+        </div>
+        <div class="mode-card mode-minor" onclick="startGame('minor')">
+          <div class="mc-icon"><i class="ti ti-moon" aria-hidden="true"></i></div>
+          <div class="mc-title">Menor</div>
+          <div class="mc-sub">Tom · Semitom · Tom · Tom · Semitom · Tom · Tom</div>
+        </div>
+      </div>
     </div>
-    <p id="reportMsg" style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem"></p>
-    <button class="btn-start" onclick="location.reload()">Jogar novamente</button>
+    <div style="padding-bottom:8px">
+      <div class="section-label" style="margin-bottom:8px;text-align:center">prévia do teclado</div>
+      <div class="piano-row" id="previewKb"></div>
+    </div>
+  </div>
+</div>
+
+<div id="sGame" class="screen">
+  <div class="topbar">
+    <span class="topbar-back" onclick="confirmHome()" aria-label="Início"><i class="ti ti-home" aria-hidden="true"></i></span>
+    <div id="gameTitle" class="topbar-title" style="font-size:14px"></div>
+    <div id="gameBadge" class="topbar-badge">1/10</div>
+  </div>
+  <div class="body">
+    <div class="scale-display">
+      <div id="scaleNotes" class="scale-notes"></div>
+      <div id="intChips" class="intervals"></div>
+    </div>
+    <div id="fb" class="feedback-bar fb-info">Escolha a 2ª nota da escala.</div>
+    <div class="piano-row" id="gameKb"></div>
+    <div id="actRow" class="bottom-actions" style="display:none">
+      <button class="act-btn act-play" id="btnPlay" onclick="playScale()" style="display:none"><i class="ti ti-player-play" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> Tocar</button>
+      <button class="act-btn act-next" id="btnNext" onclick="nextChallenge()" style="display:none">Próxima <i class="ti ti-arrow-right" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i></button>
+    </div>
+  </div>
+</div>
+
+<div id="sReport" class="screen">
+  <div class="topbar">
+    <span style="width:28px"></span>
+    <div class="topbar-title">Resultado</div>
+    <span style="width:28px"></span>
+  </div>
+  <div class="body" style="justify-content:space-between">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="result-msg">
+        <div id="rTitle" class="result-title"></div>
+        <div id="rMsg"></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-val" id="rErrors">0</div><div class="stat-lbl">erros totais</div></div>
+        <div class="stat-box"><div class="stat-val" id="rRate">0%</div><div class="stat-lbl">acerto</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;padding-bottom:8px">
+      <button class="btn-full btn-blue" onclick="location.reload()">Jogar novamente</button>
+    </div>
   </div>
 </div>
 
@@ -141,68 +176,77 @@ h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,
 
 <script src="https://unpkg.com/tone@14.7.58/build/Tone.js"></script>
 <script>
-const CHROMATIC=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-const SCALES={
-  major:{name:"Maior",intervals:[0,2,4,5,7,9,11,12],steps:["Tom","Tom","Semitom","Tom","Tom","Tom","Semitom"]},
-  minor:{name:"Menor natural",intervals:[0,2,3,5,7,8,10,12],steps:["Tom","Semitom","Tom","Tom","Semitom","Tom","Tom"]}
+const CHR=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const SC={
+  major:{name:"Maior",iv:[0,2,4,5,7,9,11,12],st:["Tom","Tom","Semitom","Tom","Tom","Tom","Semitom"]},
+  minor:{name:"Menor natural",iv:[0,2,3,5,7,8,10,12],st:["Tom","Semitom","Tom","Tom","Semitom","Tom","Tom"]}
 };
 let mode,correct=[],idx=0,errors=0,done=0,errSet=new Set(),finished=false,synth;
 
-function show(id){["welcomeSection","selectSection","gameSection","reportSection"].forEach(s=>document.getElementById(s).classList.remove("visible"));document.getElementById(id).classList.add("visible")}
-function showSelect(){show("selectSection")}
-function goHome(){location.reload()}
-
-function initAudio(){if(!synth){synth=new Tone.PolySynth(Tone.Synth,{oscillator:{type:"sawtooth"},envelope:{attack:.005,decay:.1,sustain:.3,release:1}}).toDestination();Tone.start()}}
-function playNote(n){if(synth)synth.triggerAttackRelease(n+"4","0.35s")}
-function playScale(){
-  if(!synth)return;
-  correct.forEach((n,i)=>{Tone.Transport.scheduleOnce(t=>{synth.triggerAttackRelease(n+"4","0.35",t)},i*.45)});
-  Tone.Transport.start();
-  setTimeout(()=>Tone.Transport.stop(),correct.length*460);
+function go(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));
+  document.getElementById(id).classList.add("on");
 }
 
-function buildScale(root,m){return SCALES[m].intervals.map(i=>CHROMATIC[(root+i)%12])}
+function initAudio(){
+  if(!synth){synth=new Tone.PolySynth(Tone.Synth,{oscillator:{type:"triangle"},envelope:{attack:.008,decay:.12,sustain:.28,release:.9}}).toDestination();Tone.start()}
+}
 
-function renderPiano(disabled){
-  const kb=document.getElementById("pianoKb");
-  kb.innerHTML="";
-  CHROMATIC.forEach(n=>{
-    const b=document.createElement("button");
-    b.className="piano-btn "+(n.includes("#")?"black-key":"white-key");
-    if(disabled){b.disabled=true;b.style.opacity=".45";b.style.cursor="default"}
-    b.innerHTML=`<span class="key-label">${n}</span>`;
-    b.onclick=()=>{if(!disabled){initAudio();playNote(n);checkNote(n)}};
-    kb.appendChild(b);
+function playNote(n){if(synth)synth.triggerAttackRelease(n+"4","0.3s")}
+function playScale(){
+  if(!synth)return;
+  correct.forEach((n,i)=>Tone.Transport.scheduleOnce(t=>synth.triggerAttackRelease(n+"4","0.3",t),i*.42));
+  Tone.Transport.start();
+  setTimeout(()=>Tone.Transport.stop(),correct.length*430);
+}
+
+function buildKb(container, onClick, disabled){
+  container.innerHTML="";
+  CHR.forEach(n=>{
+    const b=document.createElement("div");
+    const sh=n.includes("#");
+    b.className=sh?"bk":"wk";
+    if(disabled){b.style.pointerEvents="none";b.style.opacity=".45"}
+    b.innerHTML=`<span class="key-lbl">${n}</span>`;
+    b.addEventListener("touchstart",e=>{e.preventDefault();if(!disabled){initAudio();playNote(n);onClick(n)}},{passive:false});
+    b.addEventListener("mousedown",e=>{if(!disabled){initAudio();playNote(n);onClick(n)}});
+    container.appendChild(b);
   });
 }
 
+function flashKey(n, cls){
+  const kb=document.getElementById("gameKb");
+  [...kb.children].forEach((k,i)=>{
+    if(CHR[i]===n){k.classList.add(cls);setTimeout(()=>k.classList.remove(cls),400)}
+  });
+}
+
+function buildScale(root,m){return SC[m].iv.map(i=>CHR[(root+i)%12])}
+
 function renderScale(){
-  const row=document.getElementById("scaleRow");
+  const row=document.getElementById("scaleNotes");
   row.innerHTML="";
   for(let i=0;i<8;i++){
     const d=document.createElement("div");
-    d.className="note-box"+(i===0?" filled":"");
+    d.className="nbox"+(i===0?" filled":"");
     d.id="nb"+i;d.textContent=i===0?correct[0]:"?";
     row.appendChild(d);
   }
-  const ir=document.getElementById("intervalsRow");
-  ir.innerHTML="";
-  SCALES[mode].steps.forEach(s=>{
-    const p=document.createElement("div");
-    p.className="int-pill";p.textContent=s;
-    ir.appendChild(p);
+  const ic=document.getElementById("intChips");
+  ic.innerHTML="";
+  SC[mode].st.forEach(s=>{
+    const c=document.createElement("div");c.className="int-chip";c.textContent=s;ic.appendChild(c);
   });
 }
 
-function feedback(msg,type="info"){
-  const el=document.getElementById("feedback");
-  el.className="feedback fb-"+type;
-  el.textContent=msg;
+function setFb(msg,type){
+  const el=document.getElementById("fb");
+  el.className="feedback-bar fb-"+type;el.textContent=msg;
 }
 
 function startGame(m){
   initAudio();mode=m;
-  show("gameSection");
+  go("sGame");
   newChallenge();
 }
 
@@ -210,56 +254,75 @@ function newChallenge(){
   errSet.clear();
   const root=Math.floor(Math.random()*12);
   correct=buildScale(root,mode);idx=1;
-  document.getElementById("challengeTitle").textContent="Monte a escala de "+CHROMATIC[root]+" "+SCALES[mode].name;
-  document.getElementById("counter").textContent=done+1;
-  document.getElementById("btnNext").style.display="none";
+  document.getElementById("gameTitle").textContent=CHR[root]+" "+SC[mode].name;
+  document.getElementById("gameBadge").textContent=(done+1)+"/10";
   document.getElementById("btnPlay").style.display="none";
-  renderPiano(false);renderScale();
-  feedback("Escolha a 2ª nota da escala — Erros: "+errors);
+  document.getElementById("btnNext").style.display="none";
+  document.getElementById("actRow").style.display="none";
+  buildKb(document.getElementById("gameKb"),checkNote,false);
+  renderScale();
+  setFb("Escolha a 2ª nota — Erros: "+errors,"info");
 }
 
 function checkNote(n){
   if(idx>=8||finished)return;
   const box=document.getElementById("nb"+idx);
   if(n===correct[idx]){
+    flashKey(n,"hit");
     box.textContent=n;box.classList.remove("wrong");box.classList.add("filled");idx++;
     if(idx===8){
-      done++;document.getElementById("counter").textContent=done;
-      feedback("Desafio "+done+" concluído — Erros acumulados: "+errors,"success");
+      done++;
+      document.getElementById("gameBadge").textContent=done+"/10";
+      setFb("Desafio "+done+" concluído! Erros: "+errors,"ok");
+      document.getElementById("actRow").style.display="flex";
       document.getElementById("btnPlay").style.display="";
-      renderPiano(true);playScale();
-      if(done>=10)setTimeout(showReport,2200);
+      buildKb(document.getElementById("gameKb"),()=>{},true);
+      playScale();
+      if(done>=10)setTimeout(showReport,2400);
       else document.getElementById("btnNext").style.display="";
     } else {
-      feedback("Correto! Escolha a "+(idx+1)+"ª nota — Erros: "+errors);
+      setFb("Correto! "+(idx+1)+"ª nota — Erros: "+errors,"info");
     }
   } else {
+    flashKey(n,"miss");
     if(!errSet.has(idx)){errors++;errSet.add(idx)}
     box.classList.add("wrong");
-    feedback("Nota errada! Erros: "+errors,"danger");
-    setTimeout(()=>{box.classList.remove("wrong");feedback("Escolha a "+(idx+1)+"ª nota — Erros: "+errors)},480);
+    setFb("Errado! Erros: "+errors,"err");
+    setTimeout(()=>{box.classList.remove("wrong");setFb("Escolha a "+(idx+1)+"ª nota — Erros: "+errors,"info")},480);
   }
 }
 
 function showReport(){
-  finished=true;show("reportSection");
+  finished=true;go("sReport");
   const total=70,acc=Math.max(0,total-errors),rate=((acc/total)*100).toFixed(1);
-  document.getElementById("statErrors").textContent=errors;
-  document.getElementById("statRate").textContent=rate+"%";
+  document.getElementById("rErrors").textContent=errors;
+  document.getElementById("rRate").textContent=rate+"%";
   if(errors<7){
-    document.getElementById("reportTitle").textContent="Quase lá!";
-    document.getElementById("reportMsg").textContent="Menos de 7 erros — você foi preciso demais! O ciclo será reiniciado para consolidar a maestria.";
+    document.getElementById("rTitle").textContent="Quase lá!";
+    document.getElementById("rMsg").textContent="Menos de 7 erros — muito preciso! O ciclo será reiniciado para consolidar a maestria.";
     setTimeout(resetCycle,5500);
   } else {
-    document.getElementById("reportTitle").textContent="Parabéns, Mestre das Escalas!";
-    document.getElementById("reportMsg").textContent="Você completou os 10 desafios com maestria.";
+    document.getElementById("rTitle").textContent="Parabéns, Mestre!";
+    document.getElementById("rMsg").textContent="Você completou os 10 desafios com maestria.";
   }
 }
 
 function resetCycle(){
-  done=0;errors=0;finished=false;show("gameSection");newChallenge();
-  feedback("Novo ciclo iniciado — erros zerados!");
+  done=0;errors=0;finished=false;go("sGame");newChallenge();
+  setFb("Novo ciclo — erros zerados!","info");
 }
 
 function nextChallenge(){if(done<10)newChallenge();else showReport()}
+function confirmHome(){go("sWelcome")}
+
+(function buildPreview(){
+  const kb=document.getElementById("previewKb");
+  CHR.forEach(n=>{
+    const b=document.createElement("div");
+    b.className=n.includes("#")?"bk":"wk";
+    b.style.pointerEvents="none";
+    b.innerHTML=`<span class="key-lbl">${n}</span>`;
+    kb.appendChild(b);
+  });
+})();
 </script>
